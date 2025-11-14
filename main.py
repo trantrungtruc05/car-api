@@ -33,7 +33,8 @@ async def lifespan(app: FastAPI):
         'interval', 
         hours=6, 
         id='crawl_6_hour_job',
-        replace_existing=True
+        replace_existing=True,
+        max_instances=1
     )
     
     scheduler.start()
