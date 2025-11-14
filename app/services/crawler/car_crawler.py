@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 from app.core.database import get_db
 from app.schemas.car_schema import CarsCreate
 from app.crud import cars_crud
+import re
 
 BASE_URL = "https://bonbanh.com/"
 headers = {
@@ -15,51 +16,63 @@ def start_crawl():
 
     db = next(get_db())
 
-    resp = requests.get(BASE_URL, headers=headers, timeout=10)
-    resp.raise_for_status()
+    total_page = calc_total_page(BASE_URL)
+    for page in range(1, int(total_page)):
+        print(BASE_URL + f"oto/page,{page}")
+        resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
+        resp.raise_for_status()
 
-    html = resp.text
-    soup = BeautifulSoup(html, "html.parser")
+        html = resp.text
+        soup = BeautifulSoup(html, "html.parser")
 
-    h_list_car = soup.find('div', id='h-list-car')
-    g_box_content = h_list_car.find('div', class_='g-box-content')
-    
-    
-    for content in g_box_content.find_all('div', class_='car-item'):
-        name = content.find('a')['href']
-        print(urljoin(BASE_URL, name))
         
-        # Extract data once to avoid multiple requests
-        detail_url = urljoin(BASE_URL, name)
-        extended_info = extract_extended_info(detail_url)
-        seller_info = extract_seller_info(detail_url)
-        general_info = extract_general_info(content)
+        h_list_car = soup.find('div', id='s-list-car')
+        g_box_content = h_list_car.find('div', class_='g-box-content')
+
         
-        # insert into cars table
-        cars_create = CarsCreate(
-            car_id=general_info['car_id'],
-            name=general_info['name'],
-            price=general_info['price'],
-            location=general_info['location'],
-            status=general_info['status'],
-            year=general_info['year'],
-            mileage=extended_info['mileage'] or "",
-            origin=extended_info['origin'] or "",
-            body_type=extended_info['body_type'] or "",
-            transmission=extended_info['transmission'] or "",
-            engine=extended_info['engine'] or "",
-            exterior_color=extended_info['exterior_color'] or "",
-            interior_color=extended_info['interior_color'] or "",
-            capacity=extended_info['capacity'] or "",
-            number_of_doors=extended_info['number_of_doors'] or "",
-            drive_train=extended_info['drive_train'] or "",
-            seller_name=seller_info['seller_name'] or "",
-            address_seller=seller_info['address_seller'] or "",
-            phones=seller_info['phones'] or "",
-        )
         
-        print(f"cars_create: {cars_create}")
-        cars_crud.create_car(db=db, car=cars_create)
+        for content in g_box_content.find_all('li', class_='car-item'):
+            name = content.find('a')['href']
+            print(urljoin(BASE_URL, name))
+            
+            # Extract data once to avoid multiple requests
+            detail_url = urljoin(BASE_URL, name)
+            extended_info = extract_extended_info(detail_url)
+            seller_info = extract_seller_info(detail_url)
+            general_info = extract_general_info(content)
+            
+            # insert into cars table
+            cars_create = CarsCreate(
+                car_id=general_info['car_id'],
+                brand = extract_brand(detail_url) or "",
+                name=general_info['name'],
+                price=general_info['price'],
+                location=general_info['location'],
+                status=general_info['status'],
+                year=general_info['year'],
+                description=extract_description(detail_url) or "",
+                mileage=extended_info['mileage'] or "",
+                origin=extended_info['origin'] or "",
+                body_type=extended_info['body_type'] or "",
+                transmission=extended_info['transmission'] or "",
+                engine=extended_info['engine'] or "",
+                exterior_color=extended_info['exterior_color'] or "",
+                interior_color=extended_info['interior_color'] or "",
+                capacity=extended_info['capacity'] or "",
+                number_of_doors=extended_info['number_of_doors'] or "",
+                drive_train=extended_info['drive_train'] or "",
+                seller_name=seller_info['seller_name'] or "",
+                address_seller=seller_info['address_seller'] or "",
+                phones=seller_info['phones'] or "",
+            )
+            
+            print(f"cars_create: {cars_create}")
+            cars_existed = cars_crud.get_car_by_car_id(db=db, car_id=cars_create.car_id)
+            if cars_existed:
+                print("------ EXISTED -------")
+                continue
+            
+            cars_crud.create_car(db=db, car=cars_create)
 
 
 
@@ -70,7 +83,7 @@ def extract_general_info(content):
     
     return {
         "car_id": anchor.find('div', class_='cb5').find('span', class_='car_code').get_text().strip().split(':')[1].strip(),
-        "name": anchor.find('div', class_='cb2').find('b').get_text().strip().split('-')[0].strip(),
+        "name": anchor.find('div', class_='cb2_02').find('h3').get_text().strip().split('-')[0].strip(),
         "price": anchor.find('div', class_='cb3').find('b').get_text().strip(),
         "location": anchor.find('div', class_='cb4').find('b').get_text().strip(),
         "status": cb1.find(string=True, recursive=False).strip(),
@@ -143,12 +156,40 @@ def extract_seller_info(detail_url):
         "phones": phones
     }
 
+def extract_description(detail_url):
+    resp = requests.get(detail_url, headers=headers, timeout=10)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    box_car_des = soup.find('div', class_='box_car_des')
+    des_txt = box_car_des.find('div', class_= 'des_txt')
+    description = des_txt.get_text().strip()
+    return description
+
+def extract_brand(detail_url):
+    resp = requests.get(detail_url, headers=headers, timeout=10)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    breadcrum = soup.find('div', class_='breadcrum')
+    brand = breadcrum.find_all('span', itemprop="name")[2].get_text().strip()
+    return brand
+
+def calc_total_page(url):
+    # calc total page
+    resp = requests.get(url, headers=headers, timeout=10)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    cpage = soup.find('div', class_ = 'cpage').get_text().strip()
+    match = re.search(r'/\s*([\d,.]+)', cpage)
+    if match:
+        pages = match.group(1).replace(',', '')
+        return pages
+
     
 if __name__ == "__main__":
     start_crawl()
-
-
-
 
 
 

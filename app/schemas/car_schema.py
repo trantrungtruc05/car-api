@@ -4,11 +4,13 @@ from pydantic import BaseModel, Field
 
 class CarsBase(BaseModel):
     car_id: str = Field(..., min_length=1, max_length=255, description="Mã xe")
+    brand: str = Field(..., min_length=1, max_length=255, description="Hãng xe")
     name: str = Field(..., min_length=1, max_length=255, description="Tên xe")
     price: str = Field(..., min_length=1, max_length=255, description="Giá xe")
     location: str = Field(..., min_length=1, max_length=255, description="Vị trí xe")
     status: str = Field(..., min_length=1, max_length=255, description="Trạng thái xe")
     year: str = Field(..., min_length=1, max_length=255, description="Năm xe")
+    description: Optional[str] = Field(default="", description="Mô tả xe")
     mileage: Optional[str] = Field(default="", max_length=255, description="Số km xe")
     origin: Optional[str] = Field(default="", max_length=255, description="Xuất xứ xe")
     body_type: Optional[str] = Field(default="", max_length=255, description="Kiểu dáng xe")

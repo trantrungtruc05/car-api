@@ -7,11 +7,13 @@ class CarsCRUD:
         """Tạo xe mới"""
         db_car = Cars(
             car_id=car.car_id,
+            brand=car.brand,
             name=car.name,
             price=car.price,
             location=car.location,
             status=car.status,
             year=car.year,
+            description=car.description,
             mileage=car.mileage,
             origin=car.origin,
             body_type=car.body_type,
@@ -29,5 +31,8 @@ class CarsCRUD:
         db.add(db_car)
         db.commit()
         db.refresh(db_car)
+
+    def get_car_by_car_id(self, db: Session, car_id: str) -> Cars:
+        return db.query(Cars).filter(Cars.car_id == car_id).first()
 
 cars_crud = CarsCRUD()

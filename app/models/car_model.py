@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -7,11 +7,13 @@ class Cars(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     car_id = Column(String(255), nullable=False, index=True)
+    brand = Column(String(255), nullable=True, index=True) 
     name = Column(String(255), nullable=True, index=True)
     price = Column(String(255), nullable=True)
     location = Column(String(255), nullable=True, index=True)
     status = Column(String(255), nullable=True, index=True)
     year = Column(String(255), nullable=True, index=True)
+    description = Column(Text, nullable=True)
     mileage = Column(String(255), nullable=True)
     origin = Column(String(255), nullable=True)
     body_type = Column(String(255), nullable=True)
