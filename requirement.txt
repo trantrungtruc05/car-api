@@ -1,8 +1,12 @@
 requests
 beautifulsoup4
+lxml
+html5lib
 sqlalchemy
 psycopg2-binary
 fastapi[all]
 uvicorn
 python-dotenv
 pydantic-settings
+selenium
+webdriver-manager

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, List, Dict
-from app.models.category import Category
-from app.schemas.category import CategoryCreate
+from app.models.category_model import Category
+from app.schemas.category_schema import CategoryCreate
 
 class CategoryCRUD:
     def create_category(self, db: Session, category: CategoryCreate) -> Category:

@@ -4,9 +4,11 @@ from app.api import api_router
 from app.core.database import engine
 from app.core.config import settings
 from app.models import Category
+from app.models import Cars
 
 # Tạo bảng trong database
 Category.metadata.create_all(bind=engine)
+Cars.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.app_name,
