@@ -17,7 +17,7 @@ def start_crawl():
     db = next(get_db())
 
     total_page = calc_total_page(BASE_URL)
-    for page in range(1, int(total_page)):
+    for page in range(639, int(total_page)):
         print(BASE_URL + f"oto/page,{page}")
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
         resp.raise_for_status()

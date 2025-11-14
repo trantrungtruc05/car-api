@@ -18,6 +18,9 @@ Cars.metadata.create_all(bind=engine)
 
 scheduler = AsyncIOScheduler()
 
+def test():
+    logging.info("RUn ...")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
