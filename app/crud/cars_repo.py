@@ -36,9 +36,9 @@ class CarsCRUD:
     def get_car_by_car_id(self, db: Session, car_id: str) -> Cars:
         return db.query(Cars).filter(Cars.car_id == car_id).first()
     
-    # get all cars
-    def get_all_cars(self, db: Session) -> List[Cars]:
-        return db.query(Cars).all()
+    # get all cars order by id asc
+    def get_all_cars_order_by_id_asc(self, db: Session) -> List[Cars]:
+        return db.query(Cars).order_by(Cars.id.asc()).all()
 
     # update price for car
     def update_price_for_car(self, db: Session, car_id: str, price: str) -> Cars:

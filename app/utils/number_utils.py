@@ -11,7 +11,7 @@ def convert_price_to_number(price: str) -> int:
     total = 0
     parts = re.findall(r"([\d\.]+)\s*(tỷ|triệu|nghìn|ngàn)?", text)
     for number, unit in parts:
-        number = float(number)
+        number = int(float(number))
         if unit == "tỷ":
             total += number * 1_000_000_000
         elif unit == "triệu":
@@ -25,7 +25,7 @@ def convert_price_to_number(price: str) -> int:
 
 def update_price_into_db() -> int:
     # get all cars
-    cars = cars_crud.get_all_cars(db=db)
+    cars = cars_crud.get_all_cars_order_by_id_asc(db=db)
     for car in cars:
         # print id processing
         print(f"Update pricing from string to number for car id: {car.id}")
