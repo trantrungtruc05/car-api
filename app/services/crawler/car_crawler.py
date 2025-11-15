@@ -15,14 +15,15 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 }
 
+delay = random.uniform(2, 5) 
+
 def start_crawl(start_page, end_page):
 
     db = next(get_db())
-    delay = random.uniform(2, 5) 
+    
 
     for page in range(start_page, end_page):
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
-        time.sleep(delay)
         print(BASE_URL + f"oto/page,{page} with delay: {delay}s")
         resp.raise_for_status()
 
@@ -37,14 +38,21 @@ def start_crawl(start_page, end_page):
             name = content.find('a')['href']
             print(urljoin(BASE_URL, name))
             
-            # Extract data once to avoid multiple requests
-            detail_url = urljoin(BASE_URL, name)
-            extended_info = extract_extended_info(detail_url)
-            seller_info = extract_seller_info(detail_url)
+            
             general_info = extract_general_info(content)
             
-            # insert into cars table
-            cars_create = CarsCreate(
+            cars_existed = cars_crud.get_car_by_car_id(db=db, car_id=general_info['car_id'])
+            if cars_existed:
+                print("------ EXISTED -------")
+                continue
+            else:
+                # Extract data once to avoid multiple requests
+                detail_url = urljoin(BASE_URL, name)
+                extended_info = extract_extended_info(detail_url)
+                seller_info = extract_seller_info(detail_url)
+
+                # insert into cars table
+                cars_create = CarsCreate(
                 car_id=general_info['car_id'],
                 brand = extract_brand(detail_url) or "",
                 name=general_info['name'],
@@ -68,13 +76,8 @@ def start_crawl(start_page, end_page):
                 phones=seller_info['phones'] or "",
             )
             
-            print(f"cars_create: {cars_create}")
-            cars_existed = cars_crud.get_car_by_car_id(db=db, car_id=cars_create.car_id)
-            if cars_existed:
-                print("------ EXISTED -------")
-                continue
-            
-            cars_crud.create_car(db=db, car=cars_create)
+                print(f"cars_create: {cars_create}")
+                cars_crud.create_car(db=db, car=cars_create)
 
 
 
@@ -93,6 +96,7 @@ def extract_general_info(content):
     }
 
 def extract_extended_info(detail_url):
+    time.sleep(delay)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -132,6 +136,7 @@ def extract_extended_info(detail_url):
     return result
 
 def extract_seller_info(detail_url):
+    time.sleep(delay)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -159,6 +164,7 @@ def extract_seller_info(detail_url):
     }
 
 def extract_description(detail_url):
+    time.sleep(delay)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -169,6 +175,7 @@ def extract_description(detail_url):
     return description
 
 def extract_brand(detail_url):
+    time.sleep(delay)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
