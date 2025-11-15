@@ -9,6 +9,8 @@ import re
 from app.utils.number_utils import convert_price_to_number
 import random
 import time
+from app.crud.cron_info_repo import cron_info_crud
+from datetime import datetime
 
 BASE_URL = "https://bonbanh.com/"
 headers = {
@@ -20,7 +22,9 @@ delay = random.uniform(2, 5)
 def start_crawl(start_page, end_page):
 
     db = next(get_db())
-    
+
+    # update cron info
+    cron_info_crud.update_cron_info(db=db, job_name="car_crawler", run_at=datetime.now())
 
     for page in range(start_page, end_page):
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
@@ -30,7 +34,6 @@ def start_crawl(start_page, end_page):
         html = resp.text
         soup = BeautifulSoup(html, "html.parser")
 
-        
         h_list_car = soup.find('div', id='s-list-car')
         g_box_content = h_list_car.find('div', class_='g-box-content')
 
