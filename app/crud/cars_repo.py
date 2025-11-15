@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.car_model import Cars
 from app.schemas.car_schema import CarsCreate
+from typing import List
 
 class CarsCRUD:
     def create_car(self, db: Session, car: CarsCreate) -> Cars:
@@ -34,5 +35,17 @@ class CarsCRUD:
 
     def get_car_by_car_id(self, db: Session, car_id: str) -> Cars:
         return db.query(Cars).filter(Cars.car_id == car_id).first()
+    
+    # get all cars
+    def get_all_cars(self, db: Session) -> List[Cars]:
+        return db.query(Cars).all()
+
+    # update price for car
+    def update_price_for_car(self, db: Session, car_id: str, price: str) -> Cars:
+        car = db.query(Cars).filter(Cars.car_id == car_id).first()
+        car.price = price
+        db.commit()
+        db.refresh(car)
+        return car
 
 cars_crud = CarsCRUD()
