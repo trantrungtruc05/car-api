@@ -9,7 +9,7 @@ class Cars(Base):
     car_id = Column(String(255), nullable=False, index=True)
     brand = Column(String(255), nullable=True, index=True) 
     name = Column(String(255), nullable=True, index=True)
-    price = Column(String(255), nullable=True)
+    price = Column(Integer, nullable=True)
     location = Column(String(255), nullable=True, index=True)
     status = Column(String(255), nullable=True, index=True)
     year = Column(String(255), nullable=True, index=True)

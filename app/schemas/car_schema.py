@@ -6,7 +6,7 @@ class CarsBase(BaseModel):
     car_id: str = Field(..., min_length=1, max_length=255, description="Mã xe")
     brand: str = Field(..., min_length=1, max_length=255, description="Hãng xe")
     name: str = Field(..., min_length=1, max_length=255, description="Tên xe")
-    price: str = Field(..., min_length=1, max_length=255, description="Giá xe")
+    price: int = Field(..., description="Giá xe")
     location: str = Field(..., min_length=1, max_length=255, description="Vị trí xe")
     status: str = Field(..., min_length=1, max_length=255, description="Trạng thái xe")
     year: str = Field(..., min_length=1, max_length=255, description="Năm xe")

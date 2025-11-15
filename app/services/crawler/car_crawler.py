@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.schemas.car_schema import CarsCreate
 from app.crud import cars_crud
 import re
+from app.utils.number_utils import convert_price_to_number
 
 BASE_URL = "https://bonbanh.com/"
 headers = {
@@ -83,7 +84,7 @@ def extract_general_info(content):
     return {
         "car_id": anchor.find('div', class_='cb5').find('span', class_='car_code').get_text().strip().split(':')[1].strip(),
         "name": anchor.find('div', class_='cb2_02').find('h3').get_text().strip().split('-')[0].strip(),
-        "price": anchor.find('div', class_='cb3').find('b').get_text().strip(),
+        "price": convert_price_to_number(anchor.find('div', class_='cb3').find('b').get_text().strip()),
         "location": anchor.find('div', class_='cb4').find('b').get_text().strip(),
         "status": cb1.find(string=True, recursive=False).strip(),
         "year": cb1.find('b').get_text().strip(),
