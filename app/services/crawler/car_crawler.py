@@ -7,6 +7,8 @@ from app.schemas.car_schema import CarsCreate
 from app.crud import cars_crud
 import re
 from app.utils.number_utils import convert_price_to_number
+import random
+import time
 
 BASE_URL = "https://bonbanh.com/"
 headers = {
@@ -16,6 +18,7 @@ headers = {
 def start_crawl(start_page, end_page):
 
     db = next(get_db())
+    delay = random.uniform(2, 5) 
 
     for page in range(start_page, end_page):
         print(BASE_URL + f"oto/page,{page}")
@@ -29,8 +32,6 @@ def start_crawl(start_page, end_page):
         h_list_car = soup.find('div', id='s-list-car')
         g_box_content = h_list_car.find('div', class_='g-box-content')
 
-        
-        
         for content in g_box_content.find_all('li', class_='car-item'):
             name = content.find('a')['href']
             print(urljoin(BASE_URL, name))
@@ -73,6 +74,7 @@ def start_crawl(start_page, end_page):
                 continue
             
             cars_crud.create_car(db=db, car=cars_create)
+            time.sleep(delay)
 
 
 
