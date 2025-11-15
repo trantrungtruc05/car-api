@@ -11,6 +11,7 @@ import random
 import time
 from app.crud.cron_info_repo import cron_info_crud
 from datetime import datetime
+from datetime import timezone
 
 BASE_URL = "https://bonbanh.com/"
 headers = {
@@ -23,8 +24,8 @@ def start_crawl(start_page, end_page):
 
     db = next(get_db())
 
-    # update cron info
-    cron_info_crud.update_cron_info(db=db, job_name="car_crawler", run_at=datetime.now())
+    # update run_at of cron info
+    cron_info_crud.update_cron_info_run_at(db=db, job_name="car_crawler", run_at=datetime.now(timezone.utc))
 
     for page in range(start_page, end_page):
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
@@ -81,6 +82,9 @@ def start_crawl(start_page, end_page):
             
                 print(f"cars_create: {cars_create}")
                 cars_crud.create_car(db=db, car=cars_create)
+
+    # update run_end_at of cron info
+    cron_info_crud.update_cron_info_run_end_at(db=db, job_name="car_crawler", run_end_at=datetime.now(timezone.utc))
 
 
 
