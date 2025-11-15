@@ -12,12 +12,11 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 }
 
-def start_crawl():
+def start_crawl(start_page, end_page):
 
     db = next(get_db())
 
-    total_page = calc_total_page(BASE_URL)
-    for page in range(1496, int(total_page)):
+    for page in range(start_page, end_page):
         print(BASE_URL + f"oto/page,{page}")
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
         resp.raise_for_status()
