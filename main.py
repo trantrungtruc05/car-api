@@ -44,6 +44,7 @@ def read_root():
 
 @app.get("/health")
 def health_check():
+    print("Health check")
     return {"status": "healthy"}
 
 if __name__ == "__main__":
