@@ -21,8 +21,9 @@ def start_crawl(start_page, end_page):
     delay = random.uniform(2, 5) 
 
     for page in range(start_page, end_page):
-        print(BASE_URL + f"oto/page,{page}")
         resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
+        time.sleep(delay)
+        print(BASE_URL + f"oto/page,{page} with delay: {delay}s")
         resp.raise_for_status()
 
         html = resp.text
@@ -74,7 +75,6 @@ def start_crawl(start_page, end_page):
                 continue
             
             cars_crud.create_car(db=db, car=cars_create)
-            time.sleep(delay)
 
 
 
