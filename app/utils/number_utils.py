@@ -6,7 +6,12 @@ from app.core.database import get_db
 db = next(get_db())
 
 
-def convert_price_to_number(price: str) -> int:
+def convert_price_to_number(price) -> int:
+    # Nếu price đã là số, trả về luôn
+    if isinstance(price, (int, float)):
+        return int(price)
+    
+    # Nếu price là chuỗi, xử lý chuyển đổi
     text = price.lower()
     total = 0
     parts = re.findall(r"([\d\.]+)\s*(tỷ|triệu|nghìn|ngàn)?", text)
@@ -22,6 +27,29 @@ def convert_price_to_number(price: str) -> int:
             total += number  # không có đơn vị thì để nguyên
 
     return total
+
+
+def convert_mileage_to_integer(mileage) -> int:
+    """
+    Chuyển đổi chuỗi mileage thành số nguyên
+    Ví dụ: "42,000 Km" -> 42000, "46000 Km" -> 46000, "42,000 " -> 42000
+    """
+    if not mileage:
+        return None
+    
+    # Nếu mileage đã là số, trả về luôn
+    if isinstance(mileage, (int, float)):
+        return int(mileage)
+    
+    # Nếu là chuỗi, xử lý: loại bỏ Km, dấu phẩy, dấu chấm, khoảng trắng
+    mileage_str = str(mileage).replace('Km', '').replace('km', '').replace(',', '').replace('.', '').strip()
+    
+    # Nếu sau khi clean mà rỗng hoặc không phải số, trả về None
+    if not mileage_str or not mileage_str.isdigit():
+        return None
+    
+    return int(mileage_str)
+
 
 def update_price_into_db() -> int:
     # get all cars

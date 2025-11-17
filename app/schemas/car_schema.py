@@ -11,7 +11,7 @@ class CarsBase(BaseModel):
     status: str = Field(..., min_length=1, max_length=255, description="Trạng thái xe")
     year: str = Field(..., min_length=1, max_length=255, description="Năm xe")
     description: Optional[str] = Field(default="", description="Mô tả xe")
-    mileage: Optional[str] = Field(default="", max_length=255, description="Số km xe")
+    mileage: Optional[int] = Field(default=None, description="Số km xe")
     origin: Optional[str] = Field(default="", max_length=255, description="Xuất xứ xe")
     body_type: Optional[str] = Field(default="", max_length=255, description="Kiểu dáng xe")
     transmission: Optional[str] = Field(default="", max_length=255, description="Hộp số xe")

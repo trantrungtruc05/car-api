@@ -14,7 +14,7 @@ class Cars(Base):
     status = Column(String(255), nullable=True, index=True)
     year = Column(String(255), nullable=True, index=True)
     description = Column(Text, nullable=True)
-    mileage = Column(String(255), nullable=True)
+    mileage = Column(Integer, nullable=True)
     origin = Column(String(255), nullable=True)
     body_type = Column(String(255), nullable=True)
     transmission = Column(String(255), nullable=True)

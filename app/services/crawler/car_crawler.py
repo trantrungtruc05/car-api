@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.schemas.car_schema import CarsCreate
 from app.crud import cars_crud
 import re
-from app.utils.number_utils import convert_price_to_number
+from app.utils.number_utils import convert_price_to_number, convert_mileage_to_integer
 import random
 import time
 from app.crud.cron_info_repo import cron_info_crud
@@ -60,12 +60,12 @@ def start_crawl(start_page, end_page):
                 car_id=general_info['car_id'],
                 brand = extract_brand(detail_url) or "",
                 name=general_info['name'],
-                price=general_info['price'],
+                price= convert_price_to_number(general_info['price']),
                 location=general_info['location'],
                 status=general_info['status'],
                 year=general_info['year'],
                 description=extract_description(detail_url) or "",
-                mileage=extended_info['mileage'].replace('Km', '') if extended_info['mileage'] else None,
+                mileage=convert_mileage_to_integer(extended_info['mileage']),
                 origin=extended_info['origin'] or "",
                 body_type=extended_info['body_type'] or "",
                 transmission=extended_info['transmission'] or "",
