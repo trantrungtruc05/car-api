@@ -10,3 +10,5 @@ python-dotenv
 pydantic-settings
 selenium
 webdriver-manager
+scikit-learn
+matplotlib

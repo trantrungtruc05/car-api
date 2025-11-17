@@ -92,6 +92,9 @@ def start_crawl(start_page, end_page):
 def extract_general_info(content):
     anchor = content.find('a')
     cb1 = anchor.find('div', class_='cb1')
+    year = cb1.find('b').get_text().strip()
+    if'<' in year:
+        return None
     
     return {
         "car_id": anchor.find('div', class_='cb5').find('span', class_='car_code').get_text().strip().split(':')[1].strip(),
@@ -99,7 +102,8 @@ def extract_general_info(content):
         "price": convert_price_to_number(anchor.find('div', class_='cb3').find('b').get_text().strip()),
         "location": anchor.find('div', class_='cb4').find('b').get_text().strip(),
         "status": cb1.find(string=True, recursive=False).strip(),
-        "year": cb1.find('b').get_text().strip(),
+        "year": year
+        
     }
 
 def extract_extended_info(detail_url):
