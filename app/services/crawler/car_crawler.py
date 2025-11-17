@@ -65,7 +65,7 @@ def start_crawl(start_page, end_page):
                 status=general_info['status'],
                 year=general_info['year'],
                 description=extract_description(detail_url) or "",
-                mileage=extended_info['mileage'] or "",
+                mileage=extended_info['mileage'].replace('Km', '') if extended_info['mileage'] else None,
                 origin=extended_info['origin'] or "",
                 body_type=extended_info['body_type'] or "",
                 transmission=extended_info['transmission'] or "",
