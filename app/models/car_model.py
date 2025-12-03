@@ -27,6 +27,7 @@ class Cars(Base):
     seller_name = Column(String(255), nullable=True)
     address_seller = Column(String(255), nullable=True)
     phones = Column(String(255), nullable=True)
+    link = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

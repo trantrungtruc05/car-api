@@ -24,6 +24,7 @@ class CarsBase(BaseModel):
     seller_name: Optional[str] = Field(default="", max_length=255, description="Tên người bán xe")
     address_seller: Optional[str] = Field(default="", max_length=255, description="Địa chỉ người bán xe")
     phones: Optional[str] = Field(default="", max_length=255, description="Số điện thoại người bán xe")
+    link: Optional[str] = Field(default="", max_length=255, description="Liên kết xe")
 
 
 class CarsCreate(CarsBase):

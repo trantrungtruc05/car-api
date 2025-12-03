@@ -28,6 +28,7 @@ class CarsCRUD:
             seller_name=car.seller_name,
             address_seller=car.address_seller,
             phones=car.phones,
+            link=car.link,
         )
         db.add(db_car)
         db.commit()
@@ -47,5 +48,10 @@ class CarsCRUD:
         db.commit()
         db.refresh(car)
         return car
+
+    # get car by branch and name like and year and location and status order by price asc
+    def get_car_by_branch_and_name_like_and_year_and_location_and_status_order_by_price_asc(self, db: Session, brand: str, name: str, year: str, location: str, status: str) -> List[Cars]:
+        return db.query(Cars).filter(Cars.brand == brand, Cars.name.like(f"%{name}%"), Cars.year == year, Cars.location == location, Cars.status == status).order_by(Cars.price.asc()).all()
+
 
 cars_crud = CarsCRUD()

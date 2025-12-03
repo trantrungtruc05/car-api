@@ -78,6 +78,7 @@ def start_crawl(start_page, end_page):
                 seller_name=seller_info['seller_name'] or "",
                 address_seller=seller_info['address_seller'] or "",
                 phones=seller_info['phones'] or "",
+                link=detail_url,
             )
             
                 print(f"cars_create: {cars_create}")
@@ -107,7 +108,7 @@ def extract_general_info(content):
     }
 
 def extract_extended_info(detail_url):
-    time.sleep(delay)
+    time.sleep(1)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -147,7 +148,7 @@ def extract_extended_info(detail_url):
     return result
 
 def extract_seller_info(detail_url):
-    time.sleep(delay)
+    time.sleep(1)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -175,7 +176,7 @@ def extract_seller_info(detail_url):
     }
 
 def extract_description(detail_url):
-    time.sleep(delay)
+    time.sleep(1)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
@@ -186,7 +187,7 @@ def extract_description(detail_url):
     return description
 
 def extract_brand(detail_url):
-    time.sleep(delay)
+    time.sleep(1)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
