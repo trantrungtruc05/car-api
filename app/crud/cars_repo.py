@@ -34,6 +34,14 @@ class CarsCRUD:
         db.commit()
         db.refresh(db_car)
 
+    # insert list car into db
+    def insert_list_car(self, db: Session, cars: List[CarsCreate]) -> List[Cars]:
+        db_cars = [Cars(**car.model_dump()) for car in cars]
+        db.add_all(db_cars)
+        db.commit()
+        db.refresh_all(db_cars)
+        return db_cars
+
     def get_car_by_car_id(self, db: Session, car_id: str) -> Cars:
         return db.query(Cars).filter(Cars.car_id == car_id).first()
     
