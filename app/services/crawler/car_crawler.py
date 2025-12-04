@@ -28,64 +28,70 @@ def start_crawl(start_page, end_page):
     cron_info_crud.update_cron_info_run_at(db=db, job_name="car_crawler", run_at=datetime.now(timezone.utc))
 
     for page in range(start_page, end_page):
-        resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
-        print(BASE_URL + f"oto/page,{page} with delay: {delay}s")
-        resp.raise_for_status()
+        try:
+            resp = requests.get(BASE_URL + f"oto/page,{page}", headers=headers, timeout=10)
+            print(BASE_URL + f"oto/page,{page} with delay: {delay}s")
+            resp.raise_for_status()
 
-        html = resp.text
-        soup = BeautifulSoup(html, "html.parser")
+            html = resp.text
+            soup = BeautifulSoup(html, "html.parser")
 
-        h_list_car = soup.find('div', id='s-list-car')
-        g_box_content = h_list_car.find('div', class_='g-box-content')
+            h_list_car = soup.find('div', id='s-list-car')
+            g_box_content = h_list_car.find('div', class_='g-box-content')
 
-        for content in g_box_content.find_all('li', class_='car-item'):
-            name = content.find('a')['href']
-            print(urljoin(BASE_URL, name))
+            for content in g_box_content.find_all('li', class_='car-item'):
+                name = content.find('a')['href']
+                print(urljoin(BASE_URL, name))
+                
+                try:
+                    general_info = extract_general_info(content)
+                
+                    cars_existed = cars_crud.get_car_by_car_id(db=db, car_id= general_info['car_id'])
+                    if cars_existed:
+                        print("------ EXISTED -------")
+                        continue
+                    else:
+                        # Extract data once to avoid multiple requests
+                        detail_url = urljoin(BASE_URL, name)
+                        extended_info = extract_extended_info(detail_url)
+
+                        # insert into cars table
+                        cars_create = CarsCreate(
+                        car_id=general_info['car_id'],
+                        brand = extended_info['brand'] or "",
+                        name=general_info['name'],
+                        price= convert_price_to_number(general_info['price']),
+                        location=general_info['location'],
+                        status=general_info['status'],
+                        year=general_info['year'],
+                        description=extended_info['description'] or "",
+                        mileage=convert_mileage_to_integer(extended_info['mileage']),
+                        origin=extended_info['origin'] or "",
+                        body_type=extended_info['body_type'] or "",
+                        transmission=extended_info['transmission'] or "",
+                        engine=extended_info['engine'] or "",
+                        exterior_color=extended_info['exterior_color'] or "",
+                        interior_color=extended_info['interior_color'] or "",
+                        capacity=extended_info['capacity'] or "",
+                        number_of_doors=extended_info['number_of_doors'] or "",
+                        drive_train=extended_info['drive_train'] or "",
+                        seller_name=extended_info['seller_name'] or "",
+                        address_seller=extended_info['address_seller'] or "",
+                        phones=extended_info['phones'] or "",
+                        link=detail_url,
+                    )
+                    
+                        print(f"cars_create: {cars_create}")
+                        cars_crud.create_car(db=db, car=cars_create)
+
+                except Exception as e:
+                    print(f"Error: {e}")
+                    continue
+
+        except Exception as e:
+            print(f"Error in page {page}: {e}")
+            continue
             
-            
-            general_info = extract_general_info(content)
-
-            if general_info['car_id']:
-                cars_existed = cars_crud.get_car_by_car_id(db=db, car_id= general_info['car_id'] or "")
-            else:
-                continue
-            
-            if cars_existed:
-                print("------ EXISTED -------")
-                continue
-            else:
-                # Extract data once to avoid multiple requests
-                detail_url = urljoin(BASE_URL, name)
-                extended_info = extract_extended_info(detail_url)
-
-                # insert into cars table
-                cars_create = CarsCreate(
-                car_id=general_info['car_id'],
-                brand = extended_info['brand'] or "",
-                name=general_info['name'],
-                price= convert_price_to_number(general_info['price']),
-                location=general_info['location'],
-                status=general_info['status'],
-                year=general_info['year'],
-                description=extended_info['description'] or "",
-                mileage=convert_mileage_to_integer(extended_info['mileage']),
-                origin=extended_info['origin'] or "",
-                body_type=extended_info['body_type'] or "",
-                transmission=extended_info['transmission'] or "",
-                engine=extended_info['engine'] or "",
-                exterior_color=extended_info['exterior_color'] or "",
-                interior_color=extended_info['interior_color'] or "",
-                capacity=extended_info['capacity'] or "",
-                number_of_doors=extended_info['number_of_doors'] or "",
-                drive_train=extended_info['drive_train'] or "",
-                seller_name=extended_info['seller_name'] or "",
-                address_seller=extended_info['address_seller'] or "",
-                phones=extended_info['phones'] or "",
-                link=detail_url,
-            )
-            
-                print(f"cars_create: {cars_create}")
-                cars_crud.create_car(db=db, car=cars_create)
 
     # update run_end_at of cron info
     cron_info_crud.update_cron_info_run_end_at(db=db, job_name="car_crawler", run_end_at=datetime.now(timezone.utc))
