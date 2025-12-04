@@ -45,7 +45,7 @@ def start_crawl(start_page, end_page):
             
             general_info = extract_general_info(content)
             
-            cars_existed = cars_crud.get_car_by_car_id(db=db, car_id=general_info['car_id'])
+            cars_existed = cars_crud.get_car_by_car_id(db=db, car_id=general_info['car_id'] or "")
             if cars_existed:
                 print("------ EXISTED -------")
                 continue
