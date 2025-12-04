@@ -158,20 +158,22 @@ def extract_extended_info(detail_url):
     phones_list = [a.get_text(strip=True) for a in contact_txt.select('a[href^="tel:"]')]
     phones = ", ".join(phones_list) if phones_list else ""
 
-    result.seller_name = seller_name
-    result.address_seller = address_seller
-    result.phones = phones
+    # i want to set object result sellername
+    result['seller_name'] = seller_name
+    result['address_seller'] = address_seller
+    result['phones'] = phones
+    
 
     # description
     box_car_des = soup.find('div', class_='box_car_des')
     des_txt = box_car_des.find('div', class_= 'des_txt')
     description = des_txt.get_text().strip()
-    result.description = description
+    result['description'] = description
 
     # brand
     breadcrum = soup.find('div', class_='breadcrum')
     brand = breadcrum.find_all('span', itemprop="name")[2].get_text().strip()
-    result.brand = brand
+    result['brand'] = brand
 
     return result
 
