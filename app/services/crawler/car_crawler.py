@@ -53,18 +53,17 @@ def start_crawl(start_page, end_page):
                 # Extract data once to avoid multiple requests
                 detail_url = urljoin(BASE_URL, name)
                 extended_info = extract_extended_info(detail_url)
-                seller_info = extract_seller_info(detail_url)
 
                 # insert into cars table
                 cars_create = CarsCreate(
                 car_id=general_info['car_id'],
-                brand = extract_brand(detail_url) or "",
+                brand = extended_info['brand'] or "",
                 name=general_info['name'],
                 price= convert_price_to_number(general_info['price']),
                 location=general_info['location'],
                 status=general_info['status'],
                 year=general_info['year'],
-                description=extract_description(detail_url) or "",
+                description=extended_info['description'] or "",
                 mileage=convert_mileage_to_integer(extended_info['mileage']),
                 origin=extended_info['origin'] or "",
                 body_type=extended_info['body_type'] or "",
@@ -75,9 +74,9 @@ def start_crawl(start_page, end_page):
                 capacity=extended_info['capacity'] or "",
                 number_of_doors=extended_info['number_of_doors'] or "",
                 drive_train=extended_info['drive_train'] or "",
-                seller_name=seller_info['seller_name'] or "",
-                address_seller=seller_info['address_seller'] or "",
-                phones=seller_info['phones'] or "",
+                seller_name=extended_info['seller_name'] or "",
+                address_seller=extended_info['address_seller'] or "",
+                phones=extended_info['phones'] or "",
                 link=detail_url,
             )
             
@@ -144,57 +143,38 @@ def extract_extended_info(detail_url):
                 # Map label to result key
                 if label in label_mapping:
                     result[label_mapping[label]] = value
-    
-    return result
 
-def extract_seller_info(detail_url):
-    time.sleep(1)
-    resp = requests.get(detail_url, headers=headers, timeout=10)
-    resp.raise_for_status()
-
-    soup = BeautifulSoup(resp.text, "html.parser")
+    # seller info
     contact_txt = soup.find('div', class_='contact-txt')
 
-    # Extract seller name from span or a tag
     seller_name_tag = contact_txt.find('span', class_='cname') or contact_txt.find('a', class_='cname')
     seller_name = seller_name_tag.get_text().strip() if seller_name_tag else None
 
-    # Extract address
     address_seller = next(
         (text.replace("Địa chỉ:", "").strip() for text in contact_txt.stripped_strings if text.startswith("Địa chỉ:")),
         None
     )
     
-    # Extract phone numbers
     phones_list = [a.get_text(strip=True) for a in contact_txt.select('a[href^="tel:"]')]
     phones = ", ".join(phones_list) if phones_list else ""
-    
-    return {
-        "seller_name": seller_name,
-        "address_seller": address_seller,
-        "phones": phones
-    }
 
-def extract_description(detail_url):
-    time.sleep(1)
-    resp = requests.get(detail_url, headers=headers, timeout=10)
-    resp.raise_for_status()
+    result.seller_name = seller_name
+    result.address_seller = address_seller
+    result.phones = phones
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+    # description
     box_car_des = soup.find('div', class_='box_car_des')
     des_txt = box_car_des.find('div', class_= 'des_txt')
     description = des_txt.get_text().strip()
-    return description
+    result.description = description
 
-def extract_brand(detail_url):
-    time.sleep(1)
-    resp = requests.get(detail_url, headers=headers, timeout=10)
-    resp.raise_for_status()
-
-    soup = BeautifulSoup(resp.text, "html.parser")
+    # brand
     breadcrum = soup.find('div', class_='breadcrum')
     brand = breadcrum.find_all('span', itemprop="name")[2].get_text().strip()
-    return brand
+    result.brand = brand
+
+    return result
+
 
 def calc_total_page(url):
     # calc total page
