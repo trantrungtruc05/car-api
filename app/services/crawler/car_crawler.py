@@ -18,7 +18,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 }
 
-delay = random.uniform(2, 5) 
+delay = random.uniform(1, 3) 
 
 def start_crawl(start_page, end_page):
 
@@ -107,7 +107,7 @@ def extract_general_info(content):
     }
 
 def extract_extended_info(detail_url):
-    time.sleep(1)
+    time.sleep(delay)
     resp = requests.get(detail_url, headers=headers, timeout=10)
     resp.raise_for_status()
 
